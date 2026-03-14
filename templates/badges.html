@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Badges{% endblock %}
+{% block content %}
+<div class="content page" style="padding-top:96px">
+  <h1 class="sec-title anim-up">🎖 BADGE COLLECTION</h1>
+  <p class="sec-sub anim-up" style="animation-delay:.1s">
+    {{earned|length}} / {{(earned|length + locked|length)}} badges earned
+  </p>
+
+  <!-- Progress bar -->
+  <div class="glass anim-up" style="padding:20px 28px;margin-bottom:28px;animation-delay:.15s">
+    <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+      <span style="font-family:'Share Tech Mono',monospace;font-size:.72rem;color:var(--cyan)">COLLECTION PROGRESS</span>
+      <span style="font-family:'Share Tech Mono',monospace;font-size:.72rem;color:var(--muted)">{{earned|length}} / {{earned|length + locked|length}}</span>
+    </div>
+    <div class="xp-bar-track">
+      <div class="xp-bar-fill" style="width:{{ ((earned|length / (earned|length + locked|length)) * 100)|int }}%"></div>
+    </div>
+  </div>
+
+  <!-- Earned badges -->
+  {% if earned %}
+  <p style="font-family:'Orbitron',sans-serif;font-size:.85rem;color:var(--gold);letter-spacing:2px;margin-bottom:16px" class="anim-up" style="animation-delay:.2s">✨ EARNED</p>
+  <div class="grid-4 anim-up" style="margin-bottom:32px;animation-delay:.25s">
+    {% for b in earned %}
+    <div class="glass" style="padding:22px;text-align:center;border-color:rgba(255,215,0,.25);box-shadow:0 0 20px rgba(255,215,0,.08)">
+      <div style="font-size:2.4rem;margin-bottom:10px">{{b.icon}}</div>
+      <div style="font-family:'Orbitron',sans-serif;font-size:.75rem;color:var(--gold);font-weight:700;margin-bottom:6px">{{b.name}}</div>
+      <div style="font-size:.78rem;color:var(--muted);line-height:1.4">{{b.desc}}</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Locked badges -->
+  {% if locked %}
+  <p style="font-family:'Orbitron',sans-serif;font-size:.85rem;color:var(--muted);letter-spacing:2px;margin-bottom:16px" class="anim-up">🔒 LOCKED</p>
+  <div class="grid-4 anim-up" style="animation-delay:.3s">
+    {% for b in locked %}
+    <div class="glass" style="padding:22px;text-align:center;opacity:.45;filter:grayscale(60%)">
+      <div style="font-size:2.4rem;margin-bottom:10px;filter:blur(1px)">{{b.icon}}</div>
+      <div style="font-family:'Orbitron',sans-serif;font-size:.75rem;color:var(--muted);font-weight:700;margin-bottom:6px">{{b.name}}</div>
+      <div style="font-size:.78rem;color:var(--muted);line-height:1.4">{{b.desc}}</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div style="text-align:center;margin-top:36px">
+    <a href="/play" class="btn btn-gold">⚡ Earn More Badges</a>
+  </div>
+</div>
+{% endblock %}

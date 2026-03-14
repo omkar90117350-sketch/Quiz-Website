@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="content page" style="padding-top:96px">
+  <h1 class="sec-title anim-up">📊 MY DASHBOARD</h1>
+
+  <!-- Profile card -->
+  <div class="glass anim-up" style="padding:28px 32px;margin-bottom:24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;animation-delay:.1s">
+    <div style="width:72px;height:72px;border-radius:50%;background:{{user.avatar_color}};display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:1.8rem;font-weight:900;color:var(--bg);box-shadow:0 0 25px {{user.avatar_color}}">
+      {{user.username[0].upper()}}
+    </div>
+    <div style="flex:1">
+      <p style="font-family:'Orbitron',sans-serif;font-size:1.3rem;color:#fff;font-weight:700">{{user.username}}</p>
+      <p style="color:var(--muted);font-size:.9rem">{{level_title}} · Level {{user.level}} · Member since {{user.created_at[:10]}}</p>
+      <div class="xp-bar-track" style="margin-top:10px;max-width:300px">
+        <div class="xp-bar-fill" style="width:{{ [[(user.total_xp % 200) / 200 * 100, 100]|min, 0]|max }}%"></div>
+      </div>
+      <p style="font-size:.72rem;color:var(--muted);margin-top:4px">{{user.total_xp}} XP total · {{200 - (user.total_xp % 200)}} XP to next level</p>
+    </div>
+  </div>
+
+  <!-- Stats grid -->
+  <div class="grid-4 anim-up" style="margin-bottom:24px;animation-delay:.2s">
+    <div class="glass stat-box">
+      <span class="stat-val neon-gold">{{user.total_xp}}</span>
+      <span class="stat-lbl">Total XP</span>
+    </div>
+    <div class="glass stat-box">
+      <span class="stat-val neon-green">{{user.quizzes_played}}</span>
+      <span class="stat-lbl">Quizzes</span>
+    </div>
+    <div class="glass stat-box">
+      <span class="stat-val neon-pink">🔥{{user.best_streak}}</span>
+      <span class="stat-lbl">Best Streak</span>
+    </div>
+    <div class="glass stat-box">
+      <span class="stat-val" style="color:var(--purple)">{{((stats.avg_pct or 0)*100)|int}}%</span>
+      <span class="stat-lbl">Avg Accuracy</span>
+    </div>
+  </div>
+
+  <!-- XP Chart -->
+  <div class="glass anim-up" style="padding:24px;margin-bottom:24px;animation-delay:.3s">
+    <p style="font-family:'Orbitron',sans-serif;font-size:.85rem;color:var(--cyan);margin-bottom:16px">⚡ XP EARNED — LAST 10 QUIZZES</p>
+    <canvas id="xp-chart" height="80"></canvas>
+  </div>
+
+  <!-- History -->
+  <div class="glass anim-up" style="padding:24px;animation-delay:.4s">
+    <p style="font-family:'Orbitron',sans-serif;font-size:.85rem;color:var(--cyan);margin-bottom:16px">📋 RECENT HISTORY</p>
+    {% if history %}
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:.9rem">
+        <thead>
+          <tr style="font-family:'Share Tech Mono',monospace;font-size:.72rem;color:var(--muted);text-transform:uppercase">
+            <th style="padding:8px 12px;text-align:left;border-bottom:1px solid var(--border)">Topic</th>
+            <th style="padding:8px 12px;text-align:left;border-bottom:1px solid var(--border)">Score</th>
+            <th style="padding:8px 12px;text-align:left;border-bottom:1px solid var(--border)">Difficulty</th>
+            <th style="padding:8px 12px;text-align:left;border-bottom:1px solid var(--border)">XP</th>
+            <th style="padding:8px 12px;text-align:left;border-bottom:1px solid var(--border)">Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for h in history %}
+          <tr style="border-bottom:1px solid rgba(0,245,255,.06);transition:background .2s" onmouseover="this.style.background='rgba(0,245,255,.04)'" onmouseout="this.style.background=''">
+            <td style="padding:10px 12px;color:var(--text)">{{h.topic|title}}</td>
+            <td style="padding:10px 12px">
+              <span style="color:{{'var(--green)' if h.score/h.total >= 0.7 else 'var(--pink)'}}">{{h.score}}/{{h.total}}</span>
+            </td>
+            <td style="padding:10px 12px"><span class="tag tag-{{h.difficulty}}">{{h.difficulty}}</span></td>
+            <td style="padding:10px 12px;color:var(--gold)">+{{h.xp_earned}}</td>
+            <td style="padding:10px 12px;color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:.75rem">{{h.created_at[:10]}}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p style="color:var(--muted);text-align:center;padding:32px">No quizzes yet. <a href="/play" style="color:var(--cyan)">Start playing!</a></p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+const xpData = {{ xp_data | safe }};
+const ctx = document.getElementById('xp-chart').getContext('2d');
+new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: xpData.map(d=>`Q${d.quiz}`),
+    datasets:[{
+      label:'XP Earned',
+      data: xpData.map(d=>d.xp),
+      backgroundColor: 'rgba(0,245,255,0.2)',
+      borderColor: '#00f5ff',
+      borderWidth: 2,
+      borderRadius: 6,
+    }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:true,
+    plugins:{legend:{display:false}},
+    scales:{
+      x:{ticks:{color:'rgba(232,244,248,0.5)',font:{family:'Share Tech Mono'}},grid:{color:'rgba(0,245,255,0.05)'}},
+      y:{ticks:{color:'rgba(232,244,248,0.5)',font:{family:'Share Tech Mono'}},grid:{color:'rgba(0,245,255,0.05)'},beginAtZero:true}
+    }
+  }
+});
+</script>
+{% endblock %}

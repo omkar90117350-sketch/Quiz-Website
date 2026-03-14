@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Results{% endblock %}
+{% block content %}
+<div class="content page page-sm" style="padding-top:96px;text-align:center">
+
+  <p style="font-family:'Share Tech Mono',monospace;font-size:.72rem;letter-spacing:3px;color:var(--muted);margin-bottom:12px">MISSION COMPLETE</p>
+
+  <!-- Score circle -->
+  <div style="width:160px;height:160px;border-radius:50%;border:4px solid var(--cyan);display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 24px;box-shadow:0 0 40px rgba(0,245,255,.3),inset 0 0 40px rgba(0,245,255,.05);animation:pulseGlow 3s ease-in-out infinite">
+    <span style="font-family:'Orbitron',sans-serif;font-size:2.8rem;font-weight:900;color:var(--cyan);line-height:1">{{score}}</span>
+    <span style="font-family:'Share Tech Mono',monospace;font-size:.85rem;color:var(--muted)">/ {{total}}</span>
+  </div>
+
+  <div style="font-size:2rem;margin-bottom:6px">{{badge}}</div>
+  <h2 style="font-family:'Orbitron',sans-serif;font-size:1rem;color:var(--gold);margin-bottom:28px">{{badge_desc}}</h2>
+
+  <!-- Stats -->
+  <div class="grid-3" style="margin-bottom:20px">
+    <div class="glass stat-box">
+      <span class="stat-val neon-gold">+{{xp}}</span>
+      <span class="stat-lbl">XP Earned</span>
+    </div>
+    <div class="glass stat-box">
+      <span class="stat-val neon-purple">Lv.{{level}}</span>
+      <span class="stat-lbl">{{title}}</span>
+    </div>
+    <div class="glass stat-box">
+      <span class="stat-val neon-pink">{{time_taken}}s</span>
+      <span class="stat-lbl">Time</span>
+    </div>
+  </div>
+
+  <div class="glass" style="padding:20px;margin-bottom:20px">
+    <div style="display:flex;justify-content:space-around;gap:16px">
+      <div><div style="font-family:'Orbitron',sans-serif;font-size:1.8rem;color:var(--green)">{{results|selectattr('is_correct')|list|length}}</div><div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Correct</div></div>
+      <div><div style="font-family:'Orbitron',sans-serif;font-size:1.8rem;color:var(--pink)">{{results|rejectattr('is_correct')|list|length}}</div><div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Wrong</div></div>
+      <div><div style="font-family:'Orbitron',sans-serif;font-size:1.8rem;color:var(--gold)">{{((score/total)*100)|int}}%</div><div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Accuracy</div></div>
+      <div><div style="font-family:'Orbitron',sans-serif;font-size:1.8rem;color:var(--orange)">🔥{{streak}}</div><div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Streak</div></div>
+    </div>
+  </div>
+
+  <!-- New badges -->
+  {% if new_badges %}
+  <div class="glass" style="padding:20px;margin-bottom:20px;border-color:rgba(255,215,0,.3)">
+    <p style="font-family:'Orbitron',sans-serif;font-size:.8rem;color:var(--gold);margin-bottom:12px">🎖 NEW BADGES UNLOCKED!</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+      {% for b in new_badges %}
+      <div style="padding:10px 16px;background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.25);border-radius:8px;font-size:.85rem">
+        {{b.icon}} <strong>{{b.name}}</strong>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Review -->
+  <details style="width:100%;text-align:left;margin-bottom:24px">
+    <summary style="cursor:pointer;font-family:'Orbitron',sans-serif;font-size:.8rem;color:var(--cyan);letter-spacing:2px;padding:12px 0">REVIEW ANSWERS ▾</summary>
+    <div style="margin-top:10px">
+      {% for r in results %}
+      <div class="glass" style="padding:14px 18px;margin-bottom:8px;border-left:3px solid {{'var(--green)' if r.is_correct else 'var(--pink)'}};background:rgba({{'57,255,20' if r.is_correct else '255,0,110'}},.04)">
+        <p style="font-weight:600;margin-bottom:4px">{{loop.index}}. {{r.question}}</p>
+        <p style="font-size:.82rem;font-family:'Share Tech Mono',monospace">
+          {% if r.is_correct %}<span style="color:var(--green)">✓ {{r.correct_answer}}</span>
+          {% else %}<span style="color:var(--pink)">✗ {{r.user_answer or '(timeout)'}}</span> &nbsp;|&nbsp; <span style="color:var(--green)">✓ {{r.correct_answer}}</span>
+          {% endif %}
+        </p>
+      </div>
+      {% endfor %}
+    </div>
+  </details>
+
+  <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+    <a href="/play" class="btn btn-gold">⚡ Play Again</a>
+    <a href="/dashboard" class="btn">📊 My Stats</a>
+    <a href="/leaderboard" class="btn btn-purple">🏆 Leaderboard</a>
+  </div>
+</div>
+
+{% endblock %}
+{% block extra_js %}
+<script>
+  const score={{score}}, total={{total}};
+  if(score/total >= 0.7) launchConfetti();
+</script>
+{% endblock %}

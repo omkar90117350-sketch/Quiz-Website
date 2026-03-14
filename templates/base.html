@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>QUIZR — {% block title %}{% endblock %}</title>
+<link rel="stylesheet" href="/static/css/base.css"/>
+{% block extra_css %}{% endblock %}
+</head>
+<body>
+<canvas id="particle-canvas"></canvas>
+<div id="toast" class="toast"></div>
+
+{% if session.username %}
+<nav class="navbar">
+  <a href="/home" class="nav-logo">QUIZ<span>R</span></a>
+  <div class="nav-links">
+    <a href="/home" class="nav-link {% if request.endpoint=='home' %}active{% endif %}">Home</a>
+    <a href="/play" class="nav-link {% if request.endpoint=='play' %}active{% endif %}">Play</a>
+    <a href="/daily" class="nav-link {% if request.endpoint=='daily' %}active{% endif %}">Daily</a>
+    <a href="/leaderboard" class="nav-link {% if request.endpoint=='leaderboard' %}active{% endif %}">Ranks</a>
+    <a href="/dashboard" class="nav-link {% if request.endpoint=='dashboard' %}active{% endif %}">Stats</a>
+    <a href="/badges" class="nav-link {% if request.endpoint=='badges' %}active{% endif %}">Badges</a>
+    <a href="/dashboard" class="nav-avatar" style="background:{{ user.avatar_color if user else '#00f5ff' }};border-color:{{ user.avatar_color if user else '#00f5ff' }}">
+      {{ session.username[0].upper() }}
+    </a>
+  </div>
+</nav>
+{% endif %}
+
+{% block content %}{% endblock %}
+
+<script src="/static/js/effects.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

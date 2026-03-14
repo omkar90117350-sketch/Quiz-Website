@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}Daily Challenge{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="/static/css/quiz.css"/>{% endblock %}
+{% block content %}
+<div class="content page page-sm" style="padding-top:96px">
+
+  {% if already_played %}
+  <!-- Already played today -->
+  <div style="text-align:center;margin-bottom:32px">
+    <div style="font-size:3rem;margin-bottom:12px">✅</div>
+    <h1 class="sec-title">DAILY DONE!</h1>
+    <p class="sec-sub">You've completed today's challenge. Come back tomorrow!</p>
+  </div>
+
+  <div class="glass" style="padding:24px;margin-bottom:24px">
+    <p style="font-family:'Orbitron',sans-serif;font-size:.85rem;color:var(--gold);margin-bottom:16px">📅 TODAY'S LEADERBOARD</p>
+    {% if daily_lb %}
+      {% for s in daily_lb %}
+      <div style="display:flex;align-items:center;gap:14px;padding:10px 0;border-bottom:1px solid rgba(0,245,255,.07)">
+        <div style="width:28px;font-family:'Orbitron',sans-serif;font-size:.85rem;color:var(--muted)">
+          {% if loop.index==1 %}🥇{% elif loop.index==2 %}🥈{% elif loop.index==3 %}🥉{% else %}#{{loop.index}}{% endif %}
+        </div>
+        <div style="width:32px;height:32px;border-radius:50%;background:{{s.avatar_color or '#00f5ff'}};display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:.8rem;font-weight:900;color:var(--bg)">
+          {{s.username[0].upper()}}
+        </div>
+        <div style="flex:1;font-weight:600">{{s.username}}</div>
+        <div style="font-family:'Orbitron',sans-serif;font-size:1rem;color:var(--cyan)">{{s.score}}/{{s.total}}</div>
+        <div style="font-size:.75rem;color:var(--muted);font-family:'Share Tech Mono',monospace">{{s.time_taken}}s</div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <p style="color:var(--muted);text-align:center;padding:20px">No scores yet today.</p>
+    {% endif %}
+  </div>
+
+  <div style="display:flex;gap:12px;justify-content:center">
+    <a href="/play" class="btn btn-gold">⚡ Play Regular Quiz</a>
+    <a href="/leaderboard" class="btn btn-purple">🏆 Global Ranks</a>
+  </div>
+
+  {% else %}
+  <!-- Play daily challenge -->
+  <div style="text-align:center;margin-bottom:28px">
+    <div style="font-size:3rem;margin-bottom:12px">📅</div>
+    <h1 class="sec-title">DAILY CHALLENGE</h1>
+    <p class="sec-sub">10 questions. Same for everyone today. One attempt only.<br>Compete for the top of today's leaderboard!</p>
+  </div>
+
+  <div class="glass" style="padding:20px 24px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+    <div>
+      <p style="font-family:'Orbitron',sans-serif;font-size:.8rem;color:var(--cyan)">TODAY'S CHALLENGE</p>
+      <p style="color:var(--muted);font-size:.85rem">10 Questions · Medium · General</p>
+    </div>
+    <div style="display:flex;gap:10px">
+      <span class="tag tag-medium">MEDIUM</span>
+      <span class="tag tag-cyan">DAILY</span>
+    </div>
+  </div>
+
+  <!-- Daily leaderboard preview -->
+  {% if daily_lb %}
+  <div class="glass" style="padding:20px;margin-bottom:24px">
+    <p style="font-family:'Orbitron',sans-serif;font-size:.8rem;color:var(--muted);margin-bottom:12px">TODAY'S TOP SCORES SO FAR</p>
+    {% for s in daily_lb[:3] %}
+    <div style="display:flex;align-items:center;gap:12px;padding:7px 0;border-bottom:1px solid rgba(0,245,255,.06)">
+      <div style="width:22px;font-size:.9rem">{% if loop.index==1 %}🥇{% elif loop.index==2 %}🥈{% else %}🥉{% endif %}</div>
+      <div style="flex:1;font-weight:600;font-size:.9rem">{{s.username}}</div>
+      <div style="font-family:'Orbitron',sans-serif;font-size:.9rem;color:var(--cyan)">{{s.score}}/{{s.total}}</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Quiz interface (reuse quiz components) -->
+  <form id="ans-form" method="POST" action="/daily/submit"></form>
+
+  <div id="quiz-root" class="quiz-wrap" style="padding:0;max-width:100%"
+       data-topic="general" data-difficulty="medium" data-mode="trivia">
+
+    <div class="glass quiz-hdr" style="width:100%">
+      <div class="q-meta">
+        <span class="tag tag-medium">MEDIUM</span>
+        <span style="font-family:'Share Tech Mono',monospace;font-size:.78rem;color:var(--muted)">DAILY · {{total}} QS</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px">
+        <span id="streak-txt" style="font-family:'Orbitron',sans-serif;font-size:.78rem;color:var(--gold)"></span>
+        <span id="score-txt" style="font-family:'Share Tech Mono',monospace;font-size:.78rem;color:var(--cyan)">Score: 0</span>
+        <div class="timer-ring" id="timer-ring">
+          <svg width="60" height="60" viewBox="0 0 60 60">
+            <circle class="t-bg" cx="30" cy="30" r="27"/>
+            <circle class="t-arc" id="t-arc" cx="30" cy="30" r="27"/>
+          </svg>
+          <div class="timer-txt" id="timer-txt">20</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="prog-wrap" style="width:100%">
+      <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+      <div class="prog-lbl"><span>Progress</span><span id="prog-txt">1 / {{total}}</span></div>
+    </div>
+
+    <div class="glass q-card" id="q-card" style="width:100%" data-num="QUESTION 1 / {{total}}">
+      <p class="q-text" id="q-text">Loading...</p>
+      <div class="opts" id="opts"></div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}
+{% block extra_js %}
+{% if not already_played %}
+<script src="/static/js/quiz.js"></script>
+<script>
+  const SESSION_QS = {{ session.get('daily_questions', []) | tojson }};
+  window.addEventListener('DOMContentLoaded', () => initQuiz(SESSION_QS));
+</script>
+{% endif %}
+{% endblock %}

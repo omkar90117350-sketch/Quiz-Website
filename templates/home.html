@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<div class="content page" style="padding-top:96px">
+
+  <!-- Welcome strip -->
+  <div class="glass anim-up" style="padding:28px 32px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
+    <div style="display:flex;align-items:center;gap:18px">
+      <div style="width:56px;height:56px;border-radius:50%;background:{{user.avatar_color}};display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:1.3rem;font-weight:900;color:var(--bg);border:3px solid {{user.avatar_color}};box-shadow:0 0 20px {{user.avatar_color}}">
+        {{user.username[0].upper()}}
+      </div>
+      <div>
+        <p style="font-family:'Orbitron',sans-serif;font-size:1.2rem;color:#fff;font-weight:700">{{user.username}}</p>
+        <p style="font-size:.85rem;color:var(--muted)">{{level_title}} &nbsp;·&nbsp; Level {{user.level}} &nbsp;·&nbsp; {{user.total_xp}} XP</p>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <a href="/play" class="btn btn-gold">⚡ Play Now</a>
+      <a href="/daily" class="btn btn-purple">📅 Daily Challenge</a>
+    </div>
+  </div>
+
+  <!-- XP bar -->
+  <div class="glass anim-up" style="padding:20px 28px;margin-bottom:24px;animation-delay:.1s">
+    <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+      <span style="font-family:'Share Tech Mono',monospace;font-size:.72rem;color:var(--cyan)">XP PROGRESS</span>
+      <span style="font-family:'Share Tech Mono',monospace;font-size:.72rem;color:var(--muted)">{{user.total_xp}} XP · Level {{user.level}}</span>
+    </div>
+    <div class="xp-bar-track">
+      <div class="xp-bar-fill" style="width:{{ [[(user.total_xp % 200) / 200 * 100, 100] | min, 0] | max }}%"></div>
+    </div>
+    <p style="font-size:.78rem;color:var(--muted);margin-top:6px">Next level in {{200 - (user.total_xp % 200)}} XP</p>
+  </div>
+
+  <!-- Stats grid -->
+  <div class="grid-4 anim-up" style="margin-bottom:24px;animation-delay:.2s">
+    <div class="glass stat-box">
+      <span class="stat-val neon-gold">{{user.total_xp}}</span>
+      <span class="stat-lbl">Total XP</span>
+    </div>
+    <div class="glass stat-box">
+      <span class="stat-val" style="color:var(--purple)">Lv.{{user.level}}</span>
+      <span class="stat-lbl">{{level_title}}</span>
+    </div>
+    <div class="glass stat-box">
+      <span class="stat-val neon-green">{{user.quizzes_played}}</span>
+      <span class="stat-lbl">Quizzes</span>
+    </div>
+    <div class="glass stat-box">
+      <span class="stat-val neon-pink">🔥 {{user.best_streak}}</span>
+      <span class="stat-lbl">Best Streak</span>
+    </div>
+  </div>
+
+  <!-- Quick actions -->
+  <div class="grid-3 anim-up" style="animation-delay:.3s">
+    <a href="/play" class="glass" style="padding:28px;text-decoration:none;text-align:center;transition:all .3s">
+      <div style="font-size:2.5rem;margin-bottom:10px">🎯</div>
+      <div class="neon" style="font-size:.9rem;margin-bottom:6px">PLAY QUIZ</div>
+      <div style="font-size:.82rem;color:var(--muted)">Choose topic, difficulty & mode</div>
+    </a>
+    <a href="/daily" class="glass glass-gold" style="padding:28px;text-decoration:none;text-align:center;transition:all .3s">
+      <div style="font-size:2.5rem;margin-bottom:10px">📅</div>
+      <div class="neon-gold" style="font-family:'Orbitron',sans-serif;font-size:.9rem;margin-bottom:6px">DAILY CHALLENGE</div>
+      <div style="font-size:.82rem;color:var(--muted)">Same questions for everyone today</div>
+    </a>
+    <a href="/leaderboard" class="glass glass-purple" style="padding:28px;text-decoration:none;text-align:center;transition:all .3s">
+      <div style="font-size:2.5rem;margin-bottom:10px">🏆</div>
+      <div class="neon-purple" style="font-family:'Orbitron',sans-serif;font-size:.9rem;margin-bottom:6px">LEADERBOARD</div>
+      <div style="font-size:.82rem;color:var(--muted)">Global & topic rankings</div>
+    </a>
+  </div>
+
+</div>
+{% endblock %}

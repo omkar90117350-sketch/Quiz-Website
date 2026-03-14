@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>QUIZR — Admin</title>
+<link rel="stylesheet" href="/static/css/base.css"/>
+</head>
+<body>
+<canvas id="particle-canvas"></canvas>
+<div class="content" style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px">
+  <div class="glass pulse" style="padding:40px;width:100%;max-width:380px;text-align:center">
+    <div style="font-size:2.5rem;margin-bottom:12px">🛡️</div>
+    <h1 style="font-family:'Orbitron',sans-serif;font-size:1.2rem;color:var(--cyan);margin-bottom:8px">ADMIN ACCESS</h1>
+    <p style="color:var(--muted);font-size:.85rem;margin-bottom:24px">Enter admin password to continue</p>
+
+    {% if error %}
+    <div style="color:var(--pink);font-family:'Share Tech Mono',monospace;font-size:.8rem;margin-bottom:16px;padding:10px;background:rgba(255,0,110,.08);border:1px solid rgba(255,0,110,.2);border-radius:6px">
+      ⚠ {{error}}
+    </div>
+    {% endif %}
+
+    <form action="/admin/login" method="POST">
+      <div class="form-group" style="text-align:left">
+        <label class="form-label">Password</label>
+        <input type="password" name="password" class="form-input" placeholder="Enter admin password" autofocus/>
+      </div>
+      <button type="submit" class="btn btn-gold btn-full" style="margin-top:8px">🔓 Enter</button>
+    </form>
+
+    <p style="color:var(--muted);font-size:.75rem;margin-top:20px">Default: <code style="color:var(--cyan)">admin123</code> — change in config.py</p>
+    <a href="/" style="color:var(--muted);font-size:.8rem;display:block;margin-top:12px">← Back to App</a>
+  </div>
+</div>
+<script src="/static/js/effects.js"></script>
+</body>
+</html>

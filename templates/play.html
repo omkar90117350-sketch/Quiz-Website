@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Play{% endblock %}
+{% block content %}
+<div class="content page page-sm" style="padding-top:96px">
+  <h1 class="sec-title anim-up">⚡ START QUIZ</h1>
+  <p class="sec-sub anim-up" style="animation-delay:.1s">Choose your topic, difficulty, and mode.</p>
+
+  <div class="glass anim-up" style="padding:36px;animation-delay:.2s">
+    <form action="/quiz" method="GET">
+
+      <div class="form-group">
+        <label class="form-label">Topic</label>
+        <input type="text" name="topic" class="form-input" placeholder="e.g. Python, Space, History, AI..." value="General" maxlength="50"/>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Difficulty</label>
+        <div class="pill-row" id="diff-row">
+          <button type="button" class="pill easy active" data-val="easy">Easy</button>
+          <button type="button" class="pill medium" data-val="medium">Medium</button>
+          <button type="button" class="pill hard" data-val="hard">Hard</button>
+        </div>
+        <input type="hidden" name="difficulty" id="diff-val" value="easy"/>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Number of Questions</label>
+        <div class="pill-row" id="amt-row">
+          <button type="button" class="pill" data-val="5">5</button>
+          <button type="button" class="pill active" data-val="10">10</button>
+          <button type="button" class="pill" data-val="15">15</button>
+        </div>
+        <input type="hidden" name="amount" id="amt-val" value="10"/>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Mode</label>
+        <div class="pill-row" id="mode-row">
+          <button type="button" class="pill active" data-val="trivia">🌐 Trivia DB</button>
+          <button type="button" class="pill" data-val="ai">🤖 AI Generated</button>
+        </div>
+        <input type="hidden" name="mode" id="mode-val" value="trivia"/>
+        <p style="font-size:.78rem;color:var(--muted);margin-top:8px">AI mode generates unique questions on any topic using Gemini.</p>
+      </div>
+
+      <div class="hr"></div>
+      <button type="submit" class="btn btn-gold btn-full" style="font-size:.9rem;padding:16px">⚡ LAUNCH QUIZ</button>
+    </form>
+  </div>
+</div>
+
+<script>
+function setupPills(groupId, inputId){
+  document.querySelectorAll(`#${groupId} .pill`).forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll(`#${groupId} .pill`).forEach(b=>b.classList.remove('active','easy','medium','hard'));
+      btn.classList.add('active');
+      if(groupId==='diff-row') btn.classList.add(btn.dataset.val);
+      document.getElementById(inputId).value=btn.dataset.val;
+    });
+  });
+}
+setupPills('diff-row','diff-val');
+setupPills('amt-row','amt-val');
+setupPills('mode-row','mode-val');
+// restore diff pill active class
+document.querySelector('#diff-row .active').classList.add('easy');
+</script>
+{% endblock %}

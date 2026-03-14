@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Quiz · {{topic}}{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="/static/css/quiz.css"/>{% endblock %}
+{% block content %}
+
+<form id="ans-form" method="POST" action="/result"></form>
+
+<div id="quiz-root" class="content quiz-wrap"
+     data-topic="{{topic}}" data-difficulty="{{difficulty}}" data-mode="{{mode}}">
+
+  <!-- Header -->
+  <div class="glass quiz-hdr">
+    <div class="q-meta">
+      <span class="tag tag-{{difficulty}}">{{difficulty|upper}}</span>
+      <span style="font-family:'Share Tech Mono',monospace;font-size:.78rem;color:var(--muted)">{{topic|upper}}</span>
+      {% if mode=='ai' %}<span class="tag tag-ai">AI</span>{% endif %}
+    </div>
+    <div style="display:flex;align-items:center;gap:16px">
+      <span id="streak-txt" style="font-family:'Orbitron',sans-serif;font-size:.78rem;color:var(--gold)"></span>
+      <span id="score-txt" style="font-family:'Share Tech Mono',monospace;font-size:.78rem;color:var(--cyan)">Score: 0</span>
+      <div class="timer-ring" id="timer-ring">
+        <svg width="60" height="60" viewBox="0 0 60 60">
+          <circle class="t-bg" cx="30" cy="30" r="27"/>
+          <circle class="t-arc" id="t-arc" cx="30" cy="30" r="27"/>
+        </svg>
+        <div class="timer-txt" id="timer-txt">20</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress -->
+  <div class="prog-wrap">
+    <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    <div class="prog-lbl"><span>Progress</span><span id="prog-txt">1 / {{total}}</span></div>
+  </div>
+
+  <!-- Question card -->
+  <div class="glass q-card" id="q-card" data-num="QUESTION 1 / {{total}}">
+    <p class="q-text" id="q-text">Loading...</p>
+    <div class="opts" id="opts"></div>
+  </div>
+
+  <div style="display:flex;justify-content:flex-end;width:100%">
+    <span style="font-size:.78rem;color:var(--muted);font-family:'Share Tech Mono',monospace">
+      Player: <span style="color:{{user.avatar_color}}">{{user.username}}</span>
+    </span>
+  </div>
+</div>
+
+{% endblock %}
+{% block extra_js %}
+<script src="/static/js/quiz.js"></script>
+<script>
+  const SESSION_QS = {{ session.get('questions', []) | tojson }};
+  window.addEventListener('DOMContentLoaded', () => initQuiz(SESSION_QS));
+</script>
+{% endblock %}

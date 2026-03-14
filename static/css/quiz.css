@@ -1,0 +1,57 @@
+/* Quiz page */
+.quiz-wrap{max-width:780px;margin:0 auto;padding:calc(64px + 24px) 18px 48px;display:flex;flex-direction:column;align-items:center}
+.quiz-hdr{width:100%;display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding:14px 22px}
+.q-meta{display:flex;gap:12px;align-items:center}
+
+/* Progress */
+.prog-wrap{width:100%;margin-bottom:20px}
+.prog-track{height:4px;background:rgba(0,245,255,.1);border-radius:2px;overflow:visible;position:relative}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--cyan),var(--purple));border-radius:2px;
+  box-shadow:0 0 10px var(--cyan);transition:width .5s cubic-bezier(.4,0,.2,1);position:relative}
+.prog-fill::after{content:'';position:absolute;right:-4px;top:-4px;width:10px;height:10px;
+  border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+.prog-lbl{display:flex;justify-content:space-between;margin-top:8px;
+  font-family:'Share Tech Mono',monospace;font-size:.72rem;color:var(--muted)}
+
+/* Question card */
+.q-card{width:100%;padding:32px;margin-bottom:20px;position:relative}
+.q-card::before{content:attr(data-num);position:absolute;top:-13px;left:18px;
+  font-family:'Orbitron',sans-serif;font-size:.65rem;color:var(--cyan);
+  background:var(--bg);padding:3px 11px;border:1px solid var(--border);border-radius:4px;letter-spacing:2px}
+.q-text{font-size:1.25rem;font-weight:600;line-height:1.6;margin-bottom:28px}
+
+/* Options */
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.opts{grid-template-columns:1fr}}
+.opt{padding:16px 18px;background:rgba(0,245,255,.03);border:1px solid rgba(0,245,255,.14);
+  border-radius:10px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:1rem;
+  font-weight:600;text-align:left;cursor:pointer;transition:all .22s;display:flex;align-items:center;gap:12px;position:relative;overflow:hidden}
+.opt::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,245,255,.08),transparent);opacity:0;transition:opacity .22s}
+.opt:hover::before{opacity:1}
+.opt:hover{border-color:var(--cyan);transform:translateX(4px);box-shadow:-4px 0 18px rgba(0,245,255,.18)}
+.opt.sel{border-color:var(--cyan);background:rgba(0,245,255,.1);box-shadow:0 0 18px rgba(0,245,255,.18)}
+.opt.correct{border-color:var(--green);background:rgba(57,255,20,.08);color:var(--green);box-shadow:0 0 18px rgba(57,255,20,.18)}
+.opt.wrong{border-color:var(--pink);background:rgba(255,0,110,.08);color:var(--pink);box-shadow:0 0 18px rgba(255,0,110,.18)}
+.opt:disabled{cursor:default}
+.opt-lbl{width:28px;height:28px;border-radius:6px;border:1px solid rgba(0,245,255,.3);
+  display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;
+  font-size:.7rem;font-weight:700;flex-shrink:0;color:var(--cyan);transition:all .22s}
+.opt.sel .opt-lbl{background:var(--cyan);color:var(--bg);border-color:var(--cyan)}
+.opt.correct .opt-lbl{background:var(--green);border-color:var(--green);color:var(--bg)}
+.opt.wrong .opt-lbl{background:var(--pink);border-color:var(--pink);color:#fff}
+
+/* Timer ring */
+.timer-ring{position:relative;width:60px;height:60px;flex-shrink:0}
+.timer-ring svg{transform:rotate(-90deg)}
+.t-bg{fill:none;stroke:rgba(0,245,255,.1);stroke-width:4}
+.t-arc{fill:none;stroke:var(--cyan);stroke-width:4;stroke-linecap:round;transition:stroke-dashoffset 1s linear,stroke .3s}
+.timer-txt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:'Orbitron',sans-serif;font-size:.95rem;font-weight:700;color:var(--cyan)}
+.timer-ring.warn .t-arc{stroke:var(--gold)}.timer-ring.warn .timer-txt{color:var(--gold)}
+.timer-ring.danger .t-arc{stroke:var(--pink)}.timer-ring.danger .timer-txt{color:var(--pink);animation:glitch .5s infinite}
+
+/* Slide transitions */
+.q-card.exit{animation:slideOut .28s ease forwards}
+.q-card.enter{animation:slideIn .28s ease forwards}
+@keyframes slideOut{to{opacity:0;transform:translateX(-36px)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(36px)}to{opacity:1;transform:translateX(0)}}

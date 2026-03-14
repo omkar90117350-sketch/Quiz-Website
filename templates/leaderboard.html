@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Leaderboard{% endblock %}
+{% block content %}
+<div class="content page" style="padding-top:96px">
+  <h1 class="sec-title anim-up">🏆 HALL OF LEGENDS</h1>
+
+  <!-- Tab switcher -->
+  <div class="pill-row anim-up" style="margin-bottom:24px;animation-delay:.1s" id="lb-tabs">
+    <button class="pill active" data-tab="global" onclick="switchTab('global')">🌍 Global</button>
+    {% for t in topics %}
+    <button class="pill" data-tab="{{t}}" onclick="switchTab('{{t}}')">{{t}}</button>
+    {% endfor %}
+  </div>
+
+  <!-- Global leaderboard -->
+  <div id="tab-global" class="lb-tab anim-up" style="animation-delay:.2s">
+    {% if global_lb %}
+      {% for s in global_lb %}
+      <div class="glass" style="display:flex;align-items:center;gap:18px;padding:16px 22px;margin-bottom:10px;
+        {{'border-color:rgba(255,215,0,.4);box-shadow:0 0 20px rgba(255,215,0,.08)' if loop.index==1 else ''}}
+        {{'border-color:rgba(192,192,192,.3)' if loop.index==2 else ''}}
+        {{'border-color:rgba(205,127,50,.3)' if loop.index==3 else ''}}
+        transition:transform .2s" onmouseover="this.style.transform='translateX(5px)'" onmouseout="this.style.transform=''">
+
+        <!-- Rank -->
+        <div style="font-family:'Orbitron',sans-serif;font-size:1.1rem;font-weight:900;width:36px;flex-shrink:0">
+          {% if loop.index==1 %}🥇{% elif loop.index==2 %}🥈{% elif loop.index==3 %}🥉
+          {% else %}<span style="color:var(--muted);font-size:.9rem">#{{loop.index}}</span>{% endif %}
+        </div>
+
+        <!-- Avatar -->
+        <div style="width:40px;height:40px;border-radius:50%;background:{{s.avatar_color or '#00f5ff'}};
+          display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;
+          font-size:.9rem;font-weight:900;color:var(--bg);flex-shrink:0;
+          box-shadow:0 0 12px {{s.avatar_color or '#00f5ff'}}">
+          {{s.username[0].upper()}}
+        </div>
+
+        <!-- Info -->
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:1rem;color:{{'var(--gold)' if loop.index<=3 else 'var(--text)'}}">{{s.username}}</div>
+          <div style="font-size:.78rem;color:var(--muted);font-family:'Share Tech Mono',monospace">
+            Lv.{{s.level}} · {{s.quizzes_played or 0}} quizzes · 🔥{{s.best_streak or 0}}
+          </div>
+        </div>
+
+        <!-- XP -->
+        <div style="text-align:right">
+          <div style="font-family:'Orbitron',sans-serif;font-size:1.2rem;font-weight:900;color:var(--cyan);text-shadow:0 0 10px var(--cyan)">{{s.total_xp}}</div>
+          <div style="font-size:.72rem;color:var(--muted)">XP</div>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="glass" style="padding:60px;text-align:center">
+        <p style="color:var(--muted);font-family:'Orbitron',sans-serif">No players yet.</p>
+        <a href="/play" class="btn" style="margin-top:20px;display:inline-block">Be First</a>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Topic leaderboards -->
+  {% for t in topics %}
+  <div id="tab-{{t}}" class="lb-tab" style="display:none">
+    <p style="font-family:'Orbitron',sans-serif;font-size:.85rem;color:var(--cyan);margin-bottom:16px;letter-spacing:2px">
+      BEST IN: {{t|upper}}
+    </p>
+    {% if topic_data[t] %}
+      {% for s in topic_data[t] %}
+      <div class="glass" style="display:flex;align-items:center;gap:16px;padding:14px 20px;margin-bottom:8px;transition:transform .2s"
+           onmouseover="this.style.transform='translateX(5px)'" onmouseout="this.style.transform=''">
+        <div style="font-family:'Orbitron',sans-serif;font-size:1rem;font-weight:900;width:32px;color:var(--muted)">
+          {% if loop.index==1 %}🥇{% elif loop.index==2 %}🥈{% elif loop.index==3 %}🥉{% else %}#{{loop.index}}{% endif %}
+        </div>
+        <div style="flex:1;font-weight:700">{{s.username}}</div>
+        <div style="font-family:'Orbitron',sans-serif;font-size:1.1rem;color:var(--gold)">{{s.best}}/{{s.total}}</div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="glass" style="padding:40px;text-align:center">
+        <p style="color:var(--muted)">No scores for {{t}} yet.</p>
+        <a href="/play?topic={{t}}" class="btn btn-sm" style="margin-top:12px;display:inline-block">Play {{t}}</a>
+      </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+
+</div>
+
+<script>
+function switchTab(tab){
+  document.querySelectorAll('.lb-tab').forEach(t=>t.style.display='none');
+  document.getElementById('tab-'+tab).style.display='block';
+  document.querySelectorAll('#lb-tabs .pill').forEach(p=>p.classList.remove('active'));
+  document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+}
+</script>
+{% endblock %}

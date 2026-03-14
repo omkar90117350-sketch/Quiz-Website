@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>QUIZR — Enter the Arena</title>
+<link rel="stylesheet" href="/static/css/base.css"/>
+<style>
+.landing{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
+.hero-eye{font-family:'Share Tech Mono',monospace;font-size:.72rem;letter-spacing:4px;color:var(--cyan);margin-bottom:14px;opacity:0;animation:fadeInUp .6s .1s ease forwards}
+.hero-title{font-family:'Orbitron',sans-serif;font-size:clamp(3rem,9vw,6.5rem);font-weight:900;line-height:.95;margin-bottom:20px;opacity:0;animation:fadeInUp .6s .3s ease forwards}
+.hero-title .t1{color:#fff}.hero-title .t2{color:var(--cyan);text-shadow:0 0 40px var(--cyan),0 0 80px rgba(0,245,255,.25);display:block}
+.hero-sub{font-size:1.1rem;color:var(--muted);max-width:480px;line-height:1.7;margin-bottom:48px;opacity:0;animation:fadeInUp .6s .5s ease forwards}
+.cards-row{display:grid;grid-template-columns:1fr 1fr;gap:20px;width:100%;max-width:640px;opacity:0;animation:fadeInUp .6s .7s ease forwards}
+@media(max-width:580px){.cards-row{grid-template-columns:1fr}}
+.tab-card{padding:32px}
+.tab-title{font-family:'Orbitron',sans-serif;font-size:.85rem;letter-spacing:2px;margin-bottom:20px}
+.color-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.color-dot{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .2s;flex-shrink:0}
+.color-dot.sel{border-color:#fff;transform:scale(1.2);box-shadow:0 0 12px currentColor}
+.error{color:var(--pink);font-size:.85rem;margin-bottom:12px;font-family:'Share Tech Mono',monospace}
+.divider-txt{position:relative;text-align:center;color:var(--muted);font-size:.8rem;margin:16px 0}
+.divider-txt::before,.divider-txt::after{content:'';position:absolute;top:50%;width:40%;height:1px;background:rgba(0,245,255,.15)}
+.divider-txt::before{left:0}.divider-txt::after{right:0}
+.feature-strip{display:flex;gap:20px;margin-top:48px;flex-wrap:wrap;justify-content:center;opacity:0;animation:fadeInUp .6s .9s ease forwards}
+.f-chip{display:flex;align-items:center;gap:7px;padding:8px 16px;border-radius:30px;border:1px solid rgba(0,245,255,.12);background:rgba(0,245,255,.03);font-size:.82rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<canvas id="particle-canvas"></canvas>
+
+<div class="content landing">
+  <p class="hero-eye">[ NEXT-GEN QUIZ PLATFORM ]</p>
+  <h1 class="hero-title"><span class="t1">PROVE YOUR</span><span class="t2">KNOWLEDGE</span></h1>
+  <p class="hero-sub">AI-powered quizzes. XP system. Daily challenges. Topic leaderboards. Your profile. All free.</p>
+
+  {% if error %}
+  <div class="error" style="margin-bottom:12px">⚠ {{ error }}</div>
+  {% endif %}
+
+  <div class="cards-row">
+    <!-- Create Profile -->
+    <div class="glass tab-card pulse">
+      <p class="tab-title neon">CREATE PROFILE</p>
+      <form action="/create-profile" method="POST" id="create-form">
+        <div class="form-group">
+          <label class="form-label">Choose Username</label>
+          <input type="text" name="username" id="uname-input" class="form-input" placeholder="e.g. Omkar007" maxlength="20" autocomplete="off"/>
+          <div id="uname-status" style="font-family:'Share Tech Mono',monospace;font-size:.7rem;margin-top:5px;height:14px"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Pick Avatar Color</label>
+          <div class="color-row" id="color-row">
+            {% for c in colors %}
+            <div class="color-dot {% if loop.first %}sel{% endif %}" style="background:{{c}}" data-color="{{c}}" onclick="selectColor(this)"></div>
+            {% endfor %}
+          </div>
+          <input type="hidden" name="avatar_color" id="avatar-color" value="{{ colors[0] }}"/>
+        </div>
+        <button type="submit" class="btn btn-gold btn-full">⚡ Create Profile</button>
+      </form>
+    </div>
+
+    <!-- Return Player -->
+    <div class="glass tab-card">
+      <p class="tab-title" style="color:var(--gold)">RETURNING?</p>
+      <form action="/join" method="POST">
+        <div class="form-group">
+          <label class="form-label">Your Username</label>
+          <input type="text" name="username" class="form-input" placeholder="Enter your username" maxlength="20" autocomplete="off"/>
+        </div>
+        <div style="margin-top:56px"></div>
+        <button type="submit" class="btn btn-full">→ Enter Arena</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="feature-strip">
+    <div class="f-chip">🤖 AI Questions</div>
+    <div class="f-chip">⏱ Timer</div>
+    <div class="f-chip">🔥 Streaks</div>
+    <div class="f-chip">⚡ XP + Levels</div>
+    <div class="f-chip">🏆 Leaderboards</div>
+    <div class="f-chip">📅 Daily Challenge</div>
+    <div class="f-chip">🎖 Badges</div>
+  </div>
+</div>
+
+<script src="/static/js/effects.js"></script>
+<script>
+function selectColor(el){
+  document.querySelectorAll('.color-dot').forEach(d=>d.classList.remove('sel'));
+  el.classList.add('sel');
+  document.getElementById('avatar-color').value=el.dataset.color;
+}
+
+// Live username check
+let checkTimer=null;
+document.getElementById('uname-input').addEventListener('input',function(){
+  clearTimeout(checkTimer);
+  const val=this.value.trim();
+  const status=document.getElementById('uname-status');
+  if(val.length<2){status.textContent='';return}
+  checkTimer=setTimeout(async()=>{
+    const r=await fetch(`/api/check-username?username=${encodeURIComponent(val)}`);
+    const d=await r.json();
+    if(d.available){status.style.color='var(--green)';status.textContent='✓ Available!'}
+    else{status.style.color='var(--pink)';status.textContent='✗ Already taken'}
+  },400);
+});
+</script>
+</body>
+</html>

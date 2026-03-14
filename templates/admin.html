@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>QUIZR — Admin Panel</title>
+<link rel="stylesheet" href="/static/css/base.css"/>
+<style>
+.admin-wrap{max-width:1100px;margin:0 auto;padding:80px 20px 60px}
+.admin-nav{position:fixed;top:0;left:0;right:0;z-index:100;height:60px;background:rgba(2,4,8,.95);
+  backdrop-filter:blur(20px);border-bottom:1px solid rgba(191,0,255,.3);
+  padding:0 24px;display:flex;align-items:center;justify-content:space-between}
+.tab-btn{background:none;border:none;color:var(--muted);font-family:'Rajdhani',sans-serif;
+  font-size:.9rem;font-weight:600;cursor:pointer;padding:6px 14px;border-radius:6px;
+  text-transform:uppercase;letter-spacing:1px;transition:all .2s}
+.tab-btn.active,.tab-btn:hover{color:var(--purple);background:rgba(191,0,255,.08)}
+.tab-pane{display:none}.tab-pane.active{display:block}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+th{font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--muted);
+  text-transform:uppercase;padding:8px 12px;border-bottom:1px solid var(--border);text-align:left}
+td{padding:9px 12px;border-bottom:1px solid rgba(0,245,255,.06);vertical-align:middle}
+tr:hover td{background:rgba(0,245,255,.03)}
+.del-btn{background:rgba(255,0,110,.1);border:1px solid rgba(255,0,110,.3);color:var(--pink);
+  font-size:.72rem;padding:4px 10px;border-radius:4px;cursor:pointer;font-family:'Share Tech Mono',monospace;transition:all .2s}
+.del-btn:hover{background:rgba(255,0,110,.25)}
+.toggle-btn{background:rgba(0,245,255,.08);border:1px solid rgba(0,245,255,.2);color:var(--cyan);
+  font-size:.72rem;padding:4px 10px;border-radius:4px;cursor:pointer;font-family:'Share Tech Mono',monospace}
+</style>
+</head>
+<body>
+<canvas id="particle-canvas"></canvas>
+
+<nav class="admin-nav">
+  <span style="font-family:'Orbitron',sans-serif;font-size:1rem;color:var(--purple);text-shadow:0 0 15px var(--purple)">⚡ QUIZR ADMIN</span>
+  <div style="display:flex;gap:4px">
+    <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" onclick="switchTab('users')">Users</button>
+    <button class="tab-btn" onclick="switchTab('scores')">Scores</button>
+    <button class="tab-btn" onclick="switchTab('questions')">Questions</button>
+    <a href="/admin/logout" class="btn btn-sm btn-purple" style="margin-left:12px">Logout</a>
+  </div>
+</nav>
+
+<div class="content admin-wrap">
+
+  <!-- Overview -->
+  <div id="tab-overview" class="tab-pane active">
+    <h2 style="font-family:'Orbitron',sans-serif;color:var(--purple);margin-bottom:24px">PLATFORM OVERVIEW</h2>
+    <div class="grid-4" style="margin-bottom:28px">
+      <div class="glass stat-box glass-purple">
+        <span class="stat-val neon-purple">{{users|length}}</span>
+        <span class="stat-lbl">Total Users</span>
+      </div>
+      <div class="glass stat-box">
+        <span class="stat-val neon-gold">{{scores|length}}</span>
+        <span class="stat-lbl">Total Scores</span>
+      </div>
+      <div class="glass stat-box">
+        <span class="stat-val neon-green">{{questions|length}}</span>
+        <span class="stat-lbl">Questions</span>
+      </div>
+      <div class="glass stat-box">
+        <span class="stat-val neon-cyan">{{questions|selectattr('active','equalto',1)|list|length}}</span>
+        <span class="stat-lbl">Active Questions</span>
+      </div>
+    </div>
+    <div class="glass" style="padding:24px">
+      <p style="font-family:'Orbitron',sans-serif;font-size:.8rem;color:var(--muted);margin-bottom:14px">RECENT PLAYERS</p>
+      {% for u in users[:5] %}
+      <div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid rgba(0,245,255,.06)">
+        <div style="width:32px;height:32px;border-radius:50%;background:{{u.avatar_color}};display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:.8rem;font-weight:900;color:var(--bg)">{{u.username[0].upper()}}</div>
+        <div style="flex:1;font-weight:600">{{u.username}}</div>
+        <div style="color:var(--gold);font-family:'Share Tech Mono',monospace;font-size:.8rem">{{u.total_xp}} XP</div>
+        <div style="color:var(--muted);font-size:.75rem">Lv.{{u.level}}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Users -->
+  <div id="tab-users" class="tab-pane">
+    <h2 style="font-family:'Orbitron',sans-serif;color:var(--purple);margin-bottom:24px">USER MANAGEMENT</h2>
+    <div class="glass" style="padding:20px;overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>User</th><th>Level</th><th>XP</th><th>Quizzes</th><th>Streak</th><th>Joined</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+          {% for u in users %}
+          <tr>
+            <td>
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:28px;height:28px;border-radius:50%;background:{{u.avatar_color}};display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:.7rem;font-weight:900;color:var(--bg)">{{u.username[0].upper()}}</div>
+                <span style="font-weight:600">{{u.username}}</span>
+              </div>
+            </td>
+            <td><span style="color:var(--purple)">Lv.{{u.level}}</span></td>
+            <td><span style="color:var(--gold)">{{u.total_xp}}</span></td>
+            <td>{{u.quizzes_played}}</td>
+            <td><span style="color:var(--pink)">🔥{{u.best_streak}}</span></td>
+            <td style="font-family:'Share Tech Mono',monospace;font-size:.72rem;color:var(--muted)">{{u.created_at[:10]}}</td>
+            <td>
+              <a href="/admin/delete-user/{{u.username}}"
+                 onclick="return confirm('Delete {{u.username}}? This cannot be undone.')"
+                 class="del-btn">Delete</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Scores -->
+  <div id="tab-scores" class="tab-pane">
+    <h2 style="font-family:'Orbitron',sans-serif;color:var(--purple);margin-bottom:24px">RECENT SCORES</h2>
+    <div class="glass" style="padding:20px;overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>Player</th><th>Score</th><th>Topic</th><th>Difficulty</th><th>XP</th><th>Mode</th><th>Date</th></tr>
+        </thead>
+        <tbody>
+          {% for s in scores %}
+          <tr>
+            <td style="font-weight:600">{{s.username}}</td>
+            <td><span style="color:{{'var(--green)' if s.score/s.total >= 0.7 else 'var(--pink)'}}">{{s.score}}/{{s.total}}</span></td>
+            <td style="color:var(--cyan)">{{s.topic|title}}</td>
+            <td><span class="tag tag-{{s.difficulty}}">{{s.difficulty}}</span></td>
+            <td style="color:var(--gold)">+{{s.xp_earned}}</td>
+            <td style="color:var(--muted);font-size:.8rem">{{s.mode}}</td>
+            <td style="font-family:'Share Tech Mono',monospace;font-size:.72rem;color:var(--muted)">{{s.created_at[:10]}}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Questions -->
+  <div id="tab-questions" class="tab-pane">
+    <h2 style="font-family:'Orbitron',sans-serif;color:var(--purple);margin-bottom:24px">QUESTION BANK</h2>
+
+    <!-- Add question form -->
+    <div class="glass" style="padding:24px;margin-bottom:24px">
+      <p style="font-family:'Orbitron',sans-serif;font-size:.8rem;color:var(--cyan);margin-bottom:16px">+ ADD NEW QUESTION</p>
+      <form action="/admin/add-question" method="POST">
+        <div class="grid-2" style="gap:12px;margin-bottom:12px">
+          <div>
+            <label class="form-label">Topic</label>
+            <input type="text" name="topic" class="form-input" placeholder="e.g. Python" required/>
+          </div>
+          <div>
+            <label class="form-label">Difficulty</label>
+            <select name="difficulty" class="form-input form-select">
+              <option value="easy">Easy</option>
+              <option value="medium" selected>Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Question</label>
+          <input type="text" name="question" class="form-input" placeholder="Enter question text" required/>
+        </div>
+        <div class="grid-2" style="gap:12px;margin-bottom:12px">
+          <div><label class="form-label">Option A</label><input type="text" name="option_a" class="form-input" required/></div>
+          <div><label class="form-label">Option B</label><input type="text" name="option_b" class="form-input" required/></div>
+          <div><label class="form-label">Option C</label><input type="text" name="option_c" class="form-input" required/></div>
+          <div><label class="form-label">Option D</label><input type="text" name="option_d" class="form-input" required/></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Correct Answer (must match one option exactly)</label>
+          <input type="text" name="correct_answer" class="form-input" placeholder="Copy exact text from one of the options" required/>
+        </div>
+        <button type="submit" class="btn btn-green">+ Add Question</button>
+      </form>
+    </div>
+
+    <!-- Question list -->
+    <div class="glass" style="padding:20px;overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>Topic</th><th>Difficulty</th><th>Question</th><th>Answer</th><th>Status</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+          {% for q in questions %}
+          <tr>
+            <td><span class="tag tag-cyan">{{q.topic}}</span></td>
+            <td><span class="tag tag-{{q.difficulty}}">{{q.difficulty}}</span></td>
+            <td style="max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)">{{q.question}}</td>
+            <td style="color:var(--green);font-size:.82rem">{{q.correct_answer}}</td>
+            <td>
+              {% if q.active %}<span style="color:var(--green);font-size:.8rem">● Active</span>
+              {% else %}<span style="color:var(--muted);font-size:.8rem">○ Hidden</span>{% endif %}
+            </td>
+            <td>
+              <a href="/admin/toggle-question/{{q.id}}/{{'0' if q.active else '1'}}" class="toggle-btn">
+                {{'Hide' if q.active else 'Show'}}
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script src="/static/js/effects.js"></script>
+<script>
+function switchTab(name){
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>
